@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/tests/*.test.ts"
+    "test": "tsx --test src/tests/drivers.isolated.test.ts src/tests/validation.test.ts src/tests/top-k.property.test.ts src/tests/nearest-driver.algorithm.test.ts src/tests/top-k-drivers.test.ts",
+    "benchmark": "tsx src/benchmarks/top-k.benchmark.ts"
   },
   "keywords": [],
   "type": "commonjs",

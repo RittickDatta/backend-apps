@@ -3,7 +3,7 @@ import {
   findNearestDriver,
   type NearestDriverResult,
 } from "../algorithms/nearest-driver";
-import { driverRepository } from "../repositories/driver.repository";
+import { DriverRepository } from "../repositories/driver.repository";
 import { ApiError } from "../utils/api-error";
 
 export interface NearestDriverQuery {
@@ -65,19 +65,21 @@ export function parseNearestDriverQuery(
   return { lat, lng, radiusKm };
 }
 
-export function getNearestAvailableDriver(
-  query: NearestDriverQuery
-): NearestDriverResult | null {
-  const drivers = driverRepository.findAll();
+export class NearestDriverService {
+  constructor(
+    private readonly repository: DriverRepository
+  ) {}
 
-  return findNearestDriver(
-    drivers,
-    {
-      latitude: query.lat,
-      longitude: query.lng,
-    },
-    {
-      radiusKm: query.radiusKm,
-    }
-  );
+  findNearest(
+    query: NearestDriverQuery
+  ): NearestDriverResult | null {
+    return findNearestDriver(
+      this.repository.findAll(),
+      {
+        latitude: query.lat,
+        longitude: query.lng,
+      },
+      { radiusKm: query.radiusKm }
+    );
+  }
 }

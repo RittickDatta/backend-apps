@@ -7,6 +7,8 @@ import {
 import { driverRepository } from "../repositories/driver.repository";
 import { parseNearestDriverQuery } from "./nearest-driver.service";
 import { ApiError } from "../utils/api-error";
+import { DriverRepository } from "../repositories/driver.repository";
+
 
 export interface NearbyDriversQuery {
   lat: number;
@@ -109,23 +111,30 @@ export function parseNearbyDriversQuery(
   };
 }
 
-export function getNearbyDrivers(
-  query: NearbyDriversQuery
-): RankedDriver[] {
-  const options: TopKOptions = {
-    limit: query.limit,
-    strategy: query.strategy,
-    radiusKm: query.radiusKm,
-    blockedIds: query.blockedIds,
-    contactedIds: query.contactedIds,
-  };
+export class NearbyDriversService {
+  constructor(
+    private readonly repository: DriverRepository
+  ) {}
 
-  return findTopKDrivers(
-    driverRepository.findAll(),
-    {
-      latitude: query.lat,
-      longitude: query.lng,
-    },
-    options
-  );
+  findNearby(
+    query: NearbyDriversQuery
+  ): RankedDriver[] {
+    const options: TopKOptions = {
+      limit: query.limit,
+      strategy: query.strategy,
+      radiusKm: query.radiusKm,
+      blockedIds: query.blockedIds,
+      contactedIds: query.contactedIds,
+    };
+
+    return findTopKDrivers(
+      this.repository.findAll(),
+      {
+        latitude: query.lat,
+        longitude: query.lng,
+      },
+      options
+    );
+  }
 }
+

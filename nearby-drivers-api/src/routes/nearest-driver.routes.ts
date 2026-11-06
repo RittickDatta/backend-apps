@@ -1,26 +1,32 @@
-import { Router } from 'express';
+
+import { Router } from "express";
 import {
-  getNearestAvailableDriver,
+  NearestDriverService,
   parseNearestDriverQuery,
-} from '../services/nearest-driver.service';
+} from "../services/nearest-driver.service";
 
-export const nearestDriverRouter = Router();
+export function createNearestDriverRouter(
+  service: NearestDriverService
+): Router {
+  const router = Router();
 
-nearestDriverRouter.get('/', (req, res) => {
-  const query = parseNearestDriverQuery(req.query);
+  router.get("/", (req, res) => {
+    const query = parseNearestDriverQuery(req.query);
+    const result = service.findNearest(query);
 
-  const result = getNearestAvailableDriver(query);
+    if (!result) {
+      res.status(200).json({
+        driver: null,
+        message: "No available drivers found",
+      });
+      return;
+    }
 
-  if (!result) {
     res.status(200).json({
-      driver: null,
-      message: 'No available drivers found',
+      driver: result.driver,
+      distanceKm: Number(result.distanceKm.toFixed(3)),
     });
-    return;
-  }
-
-  res.status(200).json({
-    driver: result.driver,
-    distanceKm: Number(result.distanceKm.toFixed(3)),
   });
-});
+
+  return router;
+}

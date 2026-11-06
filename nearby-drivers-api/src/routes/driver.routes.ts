@@ -1,31 +1,43 @@
-import { Router } from 'express';
-import { driverService } from '../services/driver.service';
 
-export const driverRouter = Router();
+import { Router } from "express";
+import { DriverService } from "../services/driver.service";
 
-driverRouter.get('/', (_req, res) => {
-  const drivers = driverService.listDrivers();
+export function createDriverRouter(
+  service: DriverService
+): Router {
+  const router = Router();
 
-  res.status(200).json({
-    count: drivers.length,
-    drivers,
+  router.get("/", (_req, res) => {
+    const drivers = service.listDrivers();
+
+    res.status(200).json({
+      count: drivers.length,
+      drivers,
+    });
   });
-});
 
-driverRouter.get('/:id', (_req, res) => {
-  const driver = driverService.getDriver(String(_req.params.id));
+  router.get("/:id", (req, res) => {
+    const driver = service.getDriver(
+      String(req.params.id)
+    );
 
-  res.status(200).json({ driver });
-});
+    res.status(200).json({ driver });
+  });
 
-driverRouter.post('/', (req, res) => {
-  const driver = driverService.createDriver(req.body);
+  router.post("/", (req, res) => {
+    const driver = service.createDriver(req.body);
 
-  res.status(201).json({ driver });
-});
+    res.status(201).json({ driver });
+  });
 
-driverRouter.patch('/:id', (req, res) => {
-  const driver = driverService.updateDriver(String(req.params.id), req.body);
+  router.patch("/:id", (req, res) => {
+    const driver = service.updateDriver(
+      String(req.params.id),
+      req.body
+    );
 
-  res.status(200).json({ driver });
-});
+    res.status(200).json({ driver });
+  });
+
+  return router;
+}
