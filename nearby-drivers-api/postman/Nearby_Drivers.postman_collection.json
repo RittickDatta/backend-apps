@@ -1,0 +1,705 @@
+{
+  "info": {
+    "name": "Nearby Drivers API — Story 6",
+    "_postman_id": "d3e1a38a-f7ce-49e1-95a9-483f3c58d004",
+    "description": "Ordered end-to-end collection for the Node.js/Express/TypeScript Nearby Drivers API. Start the server and run folders in order. Uses an in-memory store: restart server or change driverId for a repeat run.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 — Happy Path",
+      "item": [
+        {
+          "name": "01 Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Service healthy\", () => pm.expect(data.status).to.eql(\"ok\"));",
+                  "  pm.test(\"Service name\", () => pm.expect(data.service).to.eql(\"nearby-drivers-api\"));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "02 Create test driver",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{driverId}}\",\n  \"name\": \"Postman Test Driver\",\n  \"latitude\": 26.1445,\n  \"longitude\": 91.7362,\n  \"available\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "description": "Uses the driverId variable. Restart the API before rerunning the full workflow, or change driverId to a new unused ID."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 201\", () => pm.response.to.have.status(201));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Created expected driver\", () => pm.expect(data.driver.id).to.eql(pm.environment.get(\"driverId\")));",
+                  "  pm.test(\"Driver starts online\", () => pm.expect(data.driver.available).to.eql(true));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "03 List drivers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Drivers array\", () => pm.expect(data.drivers).to.be.an(\"array\"));",
+                  "  pm.test(\"Created driver listed\", () => pm.expect(data.drivers.some(d => d.id === pm.environment.get(\"driverId\"))).to.eql(true));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "04 Get test driver",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/{{driverId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "{{driverId}}"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Matching ID\", () => pm.expect(data.driver.id).to.eql(pm.environment.get(\"driverId\")));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "05 Update test driver",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/{{driverId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "{{driverId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"latitude\": 26.145,\n  \"available\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Updated latitude\", () => pm.expect(data.driver.latitude).to.eql(26.145));",
+                  "  pm.test(\"Still available\", () => pm.expect(data.driver.available).to.eql(true));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "06 Nearest available driver",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/nearest?lat={{pickupLat}}&lng={{pickupLng}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "nearest"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "{{pickupLat}}"
+                },
+                {
+                  "key": "lng",
+                  "value": "{{pickupLng}}"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Nearest driver exists\", () => pm.expect(data.driver).to.be.an(\"object\"));",
+                  "  pm.test(\"Distance is nonnegative\", () => pm.expect(data.distanceKm).to.be.at.least(0));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "07 No driver within radius",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/nearest?lat=0&lng=0&radiusKm=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "nearest"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "0"
+                },
+                {
+                  "key": "lng",
+                  "value": "0"
+                },
+                {
+                  "key": "radiusKm",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"No driver found\", () => pm.expect(data.driver).to.eql(null));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "08 Top-K sorting",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/nearby?lat={{pickupLat}}&lng={{pickupLng}}&limit=3&strategy=sort",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "nearby"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "{{pickupLat}}"
+                },
+                {
+                  "key": "lng",
+                  "value": "{{pickupLng}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "3"
+                },
+                {
+                  "key": "strategy",
+                  "value": "sort"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Sort strategy\", () => pm.expect(data.strategy).to.eql(\"sort\"));",
+                  "  pm.test(\"At most three drivers\", () => pm.expect(data.drivers.length).to.be.at.most(3));",
+                  "  pm.test(\"Ordered nearest first\", () => { for (let i=1; i<data.drivers.length; i++) pm.expect(data.drivers[i].distanceKm).to.be.at.least(data.drivers[i-1].distanceKm); });",
+                  "  pm.environment.set(\"sortResultIds\", JSON.stringify(data.drivers.map(d => d.id)));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "09 Top-K heap matches sorting",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/nearby?lat={{pickupLat}}&lng={{pickupLng}}&limit=3&strategy=heap",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "nearby"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "{{pickupLat}}"
+                },
+                {
+                  "key": "lng",
+                  "value": "{{pickupLng}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "3"
+                },
+                {
+                  "key": "strategy",
+                  "value": "heap"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Heap strategy\", () => pm.expect(data.strategy).to.eql(\"heap\"));",
+                  "  pm.test(\"Same ordered IDs as sorting\", () => pm.expect(data.drivers.map(d => d.id)).to.eql(JSON.parse(pm.environment.get(\"sortResultIds\") || \"[]\")));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "10 Exclude blocked/contacted IDs",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/nearby?lat={{pickupLat}}&lng={{pickupLng}}&limit=5&strategy=heap&blockedIds={{driverId}}&contactedIds=D2",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "nearby"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "{{pickupLat}}"
+                },
+                {
+                  "key": "lng",
+                  "value": "{{pickupLng}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                },
+                {
+                  "key": "strategy",
+                  "value": "heap"
+                },
+                {
+                  "key": "blockedIds",
+                  "value": "{{driverId}}"
+                },
+                {
+                  "key": "contactedIds",
+                  "value": "D2"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 200\", () => pm.response.to.have.status(200));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Blocked driver excluded\", () => pm.expect(data.drivers.some(d => d.id === pm.environment.get(\"driverId\"))).to.eql(false));",
+                  "  pm.test(\"Contacted driver excluded\", () => pm.expect(data.drivers.some(d => d.id === \"D2\")).to.eql(false));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 — Error Cases",
+      "item": [
+        {
+          "name": "11 Duplicate ID rejected",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{driverId}}\",\n  \"name\": \"Duplicate\",\n  \"latitude\": 26.1445,\n  \"longitude\": 91.7362\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 409\", () => pm.response.to.have.status(409));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Duplicate error code\", () => pm.expect(data.error.code).to.eql(\"DRIVER_ALREADY_EXISTS\"));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "12 Invalid coordinates rejected",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"POSTMAN_INVALID\",\n  \"name\": \"Invalid\",\n  \"latitude\": 200,\n  \"longitude\": 91.7362\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Validation error\", () => pm.expect(data.error.code).to.eql(\"VALIDATION_ERROR\"));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "13 Unknown driver rejected",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/POSTMAN_NOT_FOUND",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "POSTMAN_NOT_FOUND"
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 404\", () => pm.response.to.have.status(404));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Not found error\", () => pm.expect(data.error.code).to.eql(\"DRIVER_NOT_FOUND\"));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "14 Invalid availability rejected",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/{{driverId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "{{driverId}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"available\": \"yes\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Validation error\", () => pm.expect(data.error.code).to.eql(\"VALIDATION_ERROR\"));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        },
+        {
+          "name": "15 Invalid Top-K limit rejected",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/drivers/nearby?lat={{pickupLat}}&lng={{pickupLng}}&limit=0",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "nearby"
+              ],
+              "query": [
+                {
+                  "key": "lat",
+                  "value": "{{pickupLat}}"
+                },
+                {
+                  "key": "lng",
+                  "value": "{{pickupLng}}"
+                },
+                {
+                  "key": "limit",
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "(function () {",
+                  "  pm.test(\"HTTP 400\", () => pm.response.to.have.status(400));",
+                  "  const data = pm.response.json();",
+                  "  pm.test(\"Validation error\", () => pm.expect(data.error.code).to.eql(\"VALIDATION_ERROR\"));",
+                  "})();"
+                ]
+              }
+            }
+          ],
+          "response": []
+        }
+      ]
+    }
+  ]
+}
