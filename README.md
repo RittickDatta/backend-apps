@@ -70,6 +70,38 @@ It demonstrates practical applications of data structures and algorithms within 
 - 📁 [Source Code & Detailed README](./nearby-drivers-api)
 - 🌐 [Interactive Portfolio Case Study](https://www.rittickdatta.com/projects/nearby-drivers-api)
 
+### 02. 🗺️ Route Planner API
+
+**A Google Maps-inspired, traffic-aware route planning system built with Node.js, Express, and TypeScript.**
+
+This project explores how navigation applications represent road networks as weighted graphs, calculate optimal routes between intersections, and dynamically adapt to changing traffic conditions and road closures.
+
+It demonstrates practical applications of graph algorithms, priority queues, and data structures within a REST API.
+
+**Key Features**
+
+- **Road network management:** Create, retrieve, and manage intersections and weighted roads using adjacency lists.
+- **Fewest-road routing:** Find routes with the minimum number of road segments using Breadth-First Search (BFS).
+- **Shortest and fastest routes:** Use Dijkstra's algorithm with a binary min-heap to optimize routes by distance or estimated travel time.
+- **Traffic-aware navigation:** Apply dynamic traffic multipliers to road travel times and automatically recalculate optimal routes.
+- **Road closures and one-way streets:** Exclude closed roads and respect directional restrictions during route calculations.
+- **API reliability:** Implement strict request validation, centralized error handling, and isolated graph state for testing.
+- **Automated testing:** Validate graph operations, routing algorithms, traffic updates, and edge cases through unit tests, integration tests, and Postman/Newman.
+- **Performance benchmarking:** Compare BFS and Dijkstra across generated road networks of increasing sizes.
+
+**Core Concepts**
+
+`Graphs` · `Adjacency Lists` · `BFS` · `Dijkstra's Algorithm` · `Binary Min-Heaps` · `Priority Queues` · `Dynamic Routing` · `REST APIs`
+
+**Tech Stack**
+
+`Node.js` · `TypeScript` · `Express` · `Postman` · `Newman`
+
+**Links**
+
+- 📁 [Source Code & Detailed README](https://github.com/RittickDatta/backend-apps/tree/main/route-planner-api)
+- 🌐 [Interactive Portfolio Case Study](https://www.rittickdatta.com/projects/route-planner-api)
+
 ---
 
 ## 🎯 What This Repository Explores
