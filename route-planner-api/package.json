@@ -8,7 +8,8 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "test:postman": "newman run postman/Route_Planner_API.postman_collection.json -e postman/Route_Planner_Local.postman_environment.json"
+    "test:postman": "newman run postman/Route_Planner_API.postman_collection.json -e postman/Route_Planner_Local.postman_environment.json",
+    "bench": "tsx benchmarks/routing.bench.ts"
   },
   "keywords": [],
   "type": "commonjs",
