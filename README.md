@@ -28,9 +28,10 @@ This root README provides a high-level overview of all projects in the collectio
 
 ## 🚀 Projects
 
-| # | Project | Description | Tech Stack |
+| Project | Description | Tech Stack | Documentation |
 |---|---|---|---|
-| 01 | [Nearby Drivers API](./nearby-drivers-api) | A geospatial driver discovery API featuring nearest-driver search and optimized Top-K selection. | Node.js, Express, TypeScript |
+| Nearby Drivers API | Geospatial driver search using Haversine, Top-K heaps, and Set filtering | Node.js, Express, TypeScript | [README](./nearby-drivers-api/README.md) |
+| Route Planner API | Weighted road graphs, BFS, Dijkstra, traffic-aware routing, and road closures | Node.js, Express, TypeScript | [README](./route-planner-api/README.md) |
 
 More backend applications will be added as the collection grows.
 
