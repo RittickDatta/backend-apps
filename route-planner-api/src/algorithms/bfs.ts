@@ -42,7 +42,7 @@ export function findFewestRoadsRoute(
   while (head < queue.length) {
     const current = queue[head++];
 
-    for (const neighbor of graph.getNeighbors(current)) {
+    for (const neighbor of graph.getTraversableNeighbors(current)) {
       const next = neighbor.intersectionId;
 
       if (visited.has(next)) continue;

@@ -1,8 +1,7 @@
+import type { GraphRepository } from '../graph/graph.repository';
+import { MinHeap } from './min-heap';
 
-import type { GraphRepository } from "../graph/graph.repository";
-import { MinHeap } from "./min-heap";
-
-export type RouteMetric = "distance" | "time";
+export type RouteMetric = 'distance' | 'time';
 
 export interface OptimalRouteResult {
   path: string[];
@@ -22,12 +21,9 @@ export function findOptimalRoute(
   graph: GraphRepository,
   start: string,
   destination: string,
-  metric: RouteMetric
+  metric: RouteMetric,
 ): OptimalRouteResult | null {
-  if (
-    !graph.getIntersection(start) ||
-    !graph.getIntersection(destination)
-  ) {
+  if (!graph.getIntersection(start) || !graph.getIntersection(destination)) {
     return null;
   }
 
@@ -44,10 +40,7 @@ export function findOptimalRoute(
     const currentCost = current.priority;
 
     // Ignore outdated heap entries.
-    if (
-      currentCost >
-      (distances.get(currentNode) ?? Infinity)
-    ) {
+    if (currentCost > (distances.get(currentNode) ?? Infinity)) {
       continue;
     }
 
@@ -55,31 +48,30 @@ export function findOptimalRoute(
       break;
     }
 
-    for (const neighbor of graph.getNeighbors(currentNode)) {
+    for (const neighbor of graph.getTraversableNeighbors(currentNode)) {
+      const road = graph.getRoad(neighbor.roadId);
+
+      if (!road) {
+        throw new Error(`Road ${neighbor.roadId} not found during routing`);
+      }
+
       const edgeCost =
-        metric === "distance"
-          ? neighbor.distanceKm
-          : neighbor.baseMinutes;
+        metric === 'distance'
+          ? road.distanceKm
+          : road.baseMinutes * road.trafficMultiplier;
 
       const candidateCost = currentCost + edgeCost;
-      const knownCost =
-        distances.get(neighbor.intersectionId) ?? Infinity;
+      const knownCost = distances.get(neighbor.intersectionId) ?? Infinity;
 
       if (candidateCost < knownCost) {
-        distances.set(
-          neighbor.intersectionId,
-          candidateCost
-        );
+        distances.set(neighbor.intersectionId, candidateCost);
 
         parents.set(neighbor.intersectionId, {
           previous: currentNode,
           roadId: neighbor.roadId,
         });
 
-        heap.push(
-          neighbor.intersectionId,
-          candidateCost
-        );
+        heap.push(neighbor.intersectionId, candidateCost);
       }
     }
   }
@@ -101,9 +93,7 @@ export function findOptimalRoute(
     const info = parents.get(currentNode);
 
     if (!info) {
-      throw new Error(
-        "Cannot reconstruct Dijkstra route"
-      );
+      throw new Error('Cannot reconstruct Dijkstra route');
     }
 
     roadIds.push(info.roadId);
@@ -121,13 +111,11 @@ export function findOptimalRoute(
     const road = graph.getRoad(roadId);
 
     if (!road) {
-      throw new Error(
-        `Road ${roadId} disappeared during routing`
-      );
+      throw new Error(`Road ${roadId} disappeared during routing`);
     }
 
     totalDistanceKm += road.distanceKm;
-    totalMinutes += road.baseMinutes;
+    totalMinutes += road.baseMinutes * road.trafficMultiplier;
   }
 
   return {
