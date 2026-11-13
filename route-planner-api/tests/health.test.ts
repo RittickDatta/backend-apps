@@ -49,11 +49,11 @@ describe("Route Planner API foundation", () => {
       .post("/health")
       .set("Content-Type", "application/json")
       .send('{"broken":')
-      .expect(500);
+      .expect(400);
 
     assert.equal(
       response.body.error.code,
-      "INTERNAL_SERVER_ERROR"
+      "INVALID_JSON"
     );
   });
 });

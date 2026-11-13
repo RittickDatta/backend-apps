@@ -1,16 +1,26 @@
-import express from 'express';
 
-import { healthRouter } from './routes/health.routes';
+import express from "express";
 
-import { errorHandler, notFoundHandler } from './middleware/error-handler';
+import { GraphRepository } from "./graph/graph.repository";
+import { createSeededGraph } from "./data/seed";
+import { createGraphRouter } from "./routes/graph.routes";
+import { healthRouter } from "./routes/health.routes";
 
-export function createApp() {
+import {
+  errorHandler,
+  notFoundHandler,
+} from "./middleware/error-handler";
+
+export function createApp(
+  graph: GraphRepository = createSeededGraph()
+) {
   const app = express();
 
-  app.disable('x-powered-by');
-  app.use(express.json({ limit: '100kb' }));
+  app.disable("x-powered-by");
+  app.use(express.json({ limit: "100kb" }));
 
-  app.use('/health', healthRouter);
+  app.use("/health", healthRouter);
+  app.use("/api", createGraphRouter(graph));
 
   app.use(notFoundHandler);
   app.use(errorHandler);
