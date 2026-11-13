@@ -1,0 +1,1127 @@
+{
+  "info": {
+    "_postman_id": "99a8507d-019f-416b-a58d-cf453bf49b20",
+    "name": "Route Planner API — Stories 1–7",
+    "description": "Postman v2.1 collection for the Express/TypeScript Route Planner API. Run folders in order; dynamic routing folder must be run sequentially. Requires seeded A–E and R1–R6 and Story 6 validation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 Health and Seeded Graph",
+      "description": "",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/health"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.status).to.eql(\"ok\");",
+                  "  pm.expect(body.service).to.eql(\"route-planner-api\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List intersections",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/intersections"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data).to.be.an(\"array\");",
+                  "  pm.expect(body.data.some(x => x.id === \"A\")).to.be.true;",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get intersection A",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/intersections/A"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.id).to.eql(\"A\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "List roads",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/roads"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data).to.be.an(\"array\");",
+                  "  pm.expect(body.data.some(x => x.id === \"R2\")).to.be.true;",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get road R2",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/roads/R2"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.id).to.eql(\"R2\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Neighbors of B",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/intersections/B/neighbors"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data).to.be.an(\"array\");",
+                  "  pm.expect(body.data.some(x => x.intersectionId === \"C\")).to.be.true;",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Graph snapshot",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/graph"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.intersections).to.be.an(\"array\");",
+                  "  pm.expect(body.data.roads).to.be.an(\"array\");",
+                  "  pm.expect(body.data.adjacencyList).to.be.an(\"object\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 Routing - Seeded Graph",
+      "description": "",
+      "item": [
+        {
+          "name": "BFS A to C",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/routes/bfs?from=A&to=C"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.path).to.deep.eql([\"A\", \"B\", \"C\"]);",
+                  "  pm.expect(body.data.roadCount).to.eql(2);",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dijkstra distance A to C",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/routes/optimal?from=A&to=C&metric=distance"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.path).to.deep.eql([\"A\", \"B\", \"C\"]);",
+                  "  pm.expect(body.data.totalDistanceKm).to.eql(5);",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dijkstra time A to C",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/routes/optimal?from=A&to=C&metric=time"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.metric).to.eql(\"time\");",
+                  "  pm.expect(body.data.totalMinutes).to.be.a(\"number\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "BFS same intersection",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/routes/bfs?from=A&to=A"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.path).to.deep.eql([\"A\"]);",
+                  "  pm.expect(body.data.roadCount).to.eql(0);",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 Isolated Dynamic Routing Scenario - RUN IN ORDER",
+      "description": "Run in order. First request generates unique test IDs; subsequent requests use them. Test data remains in the in-memory graph until server restart.",
+      "item": [
+        {
+          "name": "Create isolated test intersections (first)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/intersections",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{testA}}\",\n  \"name\": \"Postman Start\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const suffix = Date.now().toString(36) + Math.random().toString(36).slice(2, 7);",
+                  "pm.environment.set(\"testA\", \"T\" + suffix + \"A\");",
+                  "pm.environment.set(\"testB\", \"T\" + suffix + \"B\");",
+                  "pm.environment.set(\"testC\", \"T\" + suffix + \"C\");",
+                  "pm.environment.set(\"testRoadAB\", \"P\" + suffix + \"AB\");",
+                  "pm.environment.set(\"testRoadBC\", \"P\" + suffix + \"BC\");",
+                  "pm.environment.set(\"testRoadAC\", \"P\" + suffix + \"AC\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.id).to.eql(pm.environment.get(\"testA\"));",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create test intersection B",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/intersections",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{testB}}\",\n  \"name\": \"Postman Middle\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.id).to.eql(pm.environment.get(\"testB\"));",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create test intersection C",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/intersections",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{testC}}\",\n  \"name\": \"Postman Destination\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.id).to.eql(pm.environment.get(\"testC\"));",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create A-B road",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/roads",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{testRoadAB}}\",\n  \"from\": \"{{testA}}\",\n  \"to\": \"{{testB}}\",\n  \"distanceKm\": 2,\n  \"baseMinutes\": 3,\n  \"oneWay\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.trafficMultiplier).to.eql(1);",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create B-C road",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/roads",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{testRoadBC}}\",\n  \"from\": \"{{testB}}\",\n  \"to\": \"{{testC}}\",\n  \"distanceKm\": 2,\n  \"baseMinutes\": 3,\n  \"oneWay\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.closed).to.be.false;",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create A-C alternative road",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/roads",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{testRoadAC}}\",\n  \"from\": \"{{testA}}\",\n  \"to\": \"{{testC}}\",\n  \"distanceKm\": 8,\n  \"baseMinutes\": 10,\n  \"oneWay\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.distanceKm).to.eql(8);",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Initial fastest route via B",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/routes/optimal?from={{testA}}&to={{testC}}&metric=time"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.path).to.deep.eql([pm.environment.get(\"testA\"), pm.environment.get(\"testB\"), pm.environment.get(\"testC\")]);",
+                  "  pm.expect(body.data.totalMinutes).to.eql(6);",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Apply traffic multiplier to B-C",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/roads/{{testRoadBC}}/traffic",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"multiplier\": 4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.trafficMultiplier).to.eql(4);",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Fastest route switches to direct road",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/routes/optimal?from={{testA}}&to={{testC}}&metric=time"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.path).to.deep.eql([pm.environment.get(\"testA\"), pm.environment.get(\"testC\")]);",
+                  "  pm.expect(body.data.totalMinutes).to.eql(10);",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Shortest distance still via B",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/routes/optimal?from={{testA}}&to={{testC}}&metric=distance"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.path).to.deep.eql([pm.environment.get(\"testA\"), pm.environment.get(\"testB\"), pm.environment.get(\"testC\")]);",
+                  "  pm.expect(body.data.totalDistanceKm).to.eql(4);",
+                  "  pm.expect(body.data.totalMinutes).to.eql(15);",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Close B-C road",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/roads/{{testRoadBC}}/closure",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"closed\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.closed).to.be.true;",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "BFS avoids closed road",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/routes/bfs?from={{testA}}&to={{testC}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.path).to.deep.eql([pm.environment.get(\"testA\"), pm.environment.get(\"testC\")]);",
+                  "  pm.expect(body.data.roadIds).to.not.include(pm.environment.get(\"testRoadBC\"));",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Shortest distance avoids closed road",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/routes/optimal?from={{testA}}&to={{testC}}&metric=distance"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.roadIds).to.deep.eql([pm.environment.get(\"testRoadAC\")]);",
+                  "  pm.expect(body.data.totalDistanceKm).to.eql(8);",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reopen B-C road",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/roads/{{testRoadBC}}/closure",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"closed\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.closed).to.be.false;",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Restore B-C traffic",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/roads/{{testRoadBC}}/traffic",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"multiplier\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.trafficMultiplier).to.eql(1);",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Restored fastest route via B",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/routes/optimal?from={{testA}}&to={{testC}}&metric=time"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.data.path).to.deep.eql([pm.environment.get(\"testA\"), pm.environment.get(\"testB\"), pm.environment.get(\"testC\")]);",
+                  "  pm.expect(body.data.totalMinutes).to.eql(6);",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 Validation and Error Cases",
+      "description": "",
+      "item": [
+        {
+          "name": "Unknown intersection",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/intersections/UNKNOWN_POSTMAN"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error.code).to.eql(\"INTERSECTION_NOT_FOUND\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unknown road",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/roads/UNKNOWN_POSTMAN"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error.code).to.eql(\"ROAD_NOT_FOUND\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Missing BFS destination",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/routes/bfs?from=A"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error.code).to.eql(\"INVALID_ROUTE_QUERY\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid optimization metric",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/routes/optimal?from=A&to=C&metric=price"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error.code).to.eql(\"INVALID_ROUTE_QUERY\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid road weight",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/roads",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"BAD_WEIGHT_POSTMAN\",\n  \"from\": \"A\",\n  \"to\": \"B\",\n  \"distanceKm\": -1,\n  \"baseMinutes\": 3,\n  \"oneWay\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error.code).to.eql(\"INVALID_ROAD\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Duplicate intersection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/intersections",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"A\",\n  \"name\": \"Duplicate\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 409\", function () { pm.response.to.have.status(409); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error.code).to.eql(\"DUPLICATE_INTERSECTION\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid traffic multiplier",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/roads/R2/traffic",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"multiplier\": -1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error.code).to.eql(\"INVALID_TRAFFIC_MULTIPLIER\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid closure value",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/roads/R2/closure",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"closed\": \"true\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error.code).to.eql(\"INVALID_CLOSURE_STATUS\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Invalid intersection identifier",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{baseUrl}}/api/intersections",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"bad id\",\n  \"name\": \"Bad\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 400\", function () { pm.response.to.have.status(400); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error.code).to.eql(\"INVALID_IDENTIFIER\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Unknown API route",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/does-not-exist"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 404\", function () { pm.response.to.have.status(404); });",
+                  "(function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.error.code).to.eql(\"NOT_FOUND\");",
+                  "})();"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
