@@ -1,35 +1,41 @@
+import { Router } from 'express';
 
-import { Router } from "express";
+import type { GraphRepository } from '../graph/graph.repository';
+import { findFewestRoadsRoute } from '../algorithms/bfs';
+import { findOptimalRoute, type RouteMetric } from '../algorithms/dijkstra';
 
-import type { GraphRepository } from "../graph/graph.repository";
-import { findFewestRoadsRoute } from "../algorithms/bfs";
-import {
-  findOptimalRoute,
-  type RouteMetric,
-} from "../algorithms/dijkstra";
-
-export function createRouteRouter(
-  graph: GraphRepository
-): Router {
+export function createRouteRouter(graph: GraphRepository): Router {
   const router = Router();
 
   function validateEndpoints(
     from: unknown,
-    to: unknown
+    to: unknown,
   ):
     | { from: string; to: string }
     | { error: { status: number; code: string; message: string } } {
     if (
-      typeof from !== "string" ||
+      typeof from !== 'string' ||
       !from.trim() ||
-      typeof to !== "string" ||
+      typeof to !== 'string' ||
       !to.trim()
     ) {
       return {
         error: {
           status: 400,
-          code: "INVALID_ROUTE_QUERY",
-          message: "from and to must be non-empty strings",
+          code: 'INVALID_ROUTE_QUERY',
+          message: 'from and to must be non-empty strings',
+        },
+      };
+    }
+
+    const validId = /^[A-Za-z0-9_-]{1,64}$/;
+
+    if (!validId.test(from) || !validId.test(to)) {
+      return {
+        error: {
+          status: 400,
+          code: 'INVALID_ROUTE_QUERY',
+          message: 'from and to must be valid intersection identifiers',
         },
       };
     }
@@ -38,7 +44,7 @@ export function createRouteRouter(
       return {
         error: {
           status: 404,
-          code: "INTERSECTION_NOT_FOUND",
+          code: 'INTERSECTION_NOT_FOUND',
           message: `Intersection ${from} not found`,
         },
       };
@@ -48,7 +54,7 @@ export function createRouteRouter(
       return {
         error: {
           status: 404,
-          code: "INTERSECTION_NOT_FOUND",
+          code: 'INTERSECTION_NOT_FOUND',
           message: `Intersection ${to} not found`,
         },
       };
@@ -57,13 +63,10 @@ export function createRouteRouter(
     return { from, to };
   }
 
-  router.get("/bfs", (req, res) => {
-    const validation = validateEndpoints(
-      req.query.from,
-      req.query.to
-    );
+  router.get('/bfs', (req, res) => {
+    const validation = validateEndpoints(req.query.from, req.query.to);
 
-    if ("error" in validation) {
+    if ('error' in validation) {
       const { status, code, message } = validation.error;
       res.status(status).json({
         error: { code, message },
@@ -71,16 +74,12 @@ export function createRouteRouter(
       return;
     }
 
-    const route = findFewestRoadsRoute(
-      graph,
-      validation.from,
-      validation.to
-    );
+    const route = findFewestRoadsRoute(graph, validation.from, validation.to);
 
     if (!route) {
       res.status(404).json({
         error: {
-          code: "ROUTE_NOT_FOUND",
+          code: 'ROUTE_NOT_FOUND',
           message: `No route found from ${validation.from} to ${validation.to}`,
         },
       });
@@ -90,13 +89,10 @@ export function createRouteRouter(
     res.json({ data: route });
   });
 
-  router.get("/optimal", (req, res) => {
-    const validation = validateEndpoints(
-      req.query.from,
-      req.query.to
-    );
+  router.get('/optimal', (req, res) => {
+    const validation = validateEndpoints(req.query.from, req.query.to);
 
-    if ("error" in validation) {
+    if ('error' in validation) {
       const { status, code, message } = validation.error;
       res.status(status).json({
         error: { code, message },
@@ -106,11 +102,11 @@ export function createRouteRouter(
 
     const metric = req.query.metric;
 
-    if (metric !== "distance" && metric !== "time") {
+    if (metric !== 'distance' && metric !== 'time') {
       res.status(400).json({
         error: {
-          code: "INVALID_ROUTE_QUERY",
-          message: "metric must be distance or time",
+          code: 'INVALID_ROUTE_QUERY',
+          message: 'metric must be distance or time',
         },
       });
       return;
@@ -120,13 +116,13 @@ export function createRouteRouter(
       graph,
       validation.from,
       validation.to,
-      metric as RouteMetric
+      metric as RouteMetric,
     );
 
     if (!route) {
       res.status(404).json({
         error: {
-          code: "ROUTE_NOT_FOUND",
+          code: 'ROUTE_NOT_FOUND',
           message: `No route found from ${validation.from} to ${validation.to}`,
         },
       });

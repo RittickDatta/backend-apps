@@ -17,6 +17,42 @@ export class GraphError extends Error {
   }
 }
 
+function requireId(value: unknown, field: string): string {
+  if (typeof value !== 'string' || !/^[A-Za-z0-9_-]{1,64}$/.test(value)) {
+    throw new GraphError(
+      400,
+      'INVALID_IDENTIFIER',
+      `${field} must contain 1–64 letters, numbers, _ or -`,
+    );
+  }
+
+  return value;
+}
+
+function requirePositiveNumber(value: unknown, field: string): number {
+  if (typeof value !== 'number' || !Number.isFinite(value) || value <= 0) {
+    throw new GraphError(
+      400,
+      'INVALID_ROAD',
+      `${field} must be a positive finite number`,
+    );
+  }
+
+  return value;
+}
+
+function requireNonEmptyName(value: unknown): string {
+  if (typeof value !== 'string' || !value.trim() || value.length > 120) {
+    throw new GraphError(
+      400,
+      'INVALID_INTERSECTION',
+      'name must be a non-empty string of at most 120 characters',
+    );
+  }
+
+  return value.trim();
+}
+
 export class GraphRepository {
   private readonly intersections = new Map<string, Intersection>();
 
@@ -25,20 +61,8 @@ export class GraphRepository {
   private readonly adjacency = new Map<string, Neighbor[]>();
 
   addIntersection(input: Intersection): Intersection {
-    const { id, name } = input;
-
-    if (
-      typeof id !== 'string' ||
-      !id.trim() ||
-      typeof name !== 'string' ||
-      !name.trim()
-    ) {
-      throw new GraphError(
-        400,
-        'INVALID_INTERSECTION',
-        'id and name must be non-empty strings',
-      );
-    }
+    const id = requireId(input.id, 'id');
+    const name = requireNonEmptyName(input.name);
 
     if (this.intersections.has(id)) {
       throw new GraphError(
@@ -66,22 +90,16 @@ export class GraphRepository {
   }
 
   addRoad(input: CreateRoadInput): Road {
-    const { id, from, to, distanceKm, baseMinutes, oneWay } = input;
+    const id = requireId(input.id, 'id');
+    const from = requireId(input.from, 'from');
+    const to = requireId(input.to, 'to');
 
-    if (
-      typeof id !== 'string' ||
-      !id.trim() ||
-      typeof from !== 'string' ||
-      !from.trim() ||
-      typeof to !== 'string' ||
-      !to.trim() ||
-      typeof oneWay !== 'boolean' ||
-      !Number.isFinite(distanceKm) ||
-      distanceKm <= 0 ||
-      !Number.isFinite(baseMinutes) ||
-      baseMinutes <= 0
-    ) {
-      throw new GraphError(400, 'INVALID_ROAD', 'Invalid road properties');
+    const distanceKm = requirePositiveNumber(input.distanceKm, 'distanceKm');
+
+    const baseMinutes = requirePositiveNumber(input.baseMinutes, 'baseMinutes');
+
+    if (typeof input.oneWay !== 'boolean') {
+      throw new GraphError(400, 'INVALID_ROAD', 'oneWay must be a boolean');
     }
 
     if (from === to) {
@@ -110,7 +128,7 @@ export class GraphRepository {
       to,
       distanceKm,
       baseMinutes,
-      oneWay,
+      oneWay: input.oneWay,
       trafficMultiplier: 1,
       closed: false,
     };
@@ -124,7 +142,7 @@ export class GraphRepository {
       baseMinutes,
     });
 
-    if (!oneWay) {
+    if (!road.oneWay) {
       this.adjacency.get(to)!.push({
         intersectionId: from,
         roadId: id,

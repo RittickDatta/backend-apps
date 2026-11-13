@@ -1,10 +1,12 @@
 import { Router } from 'express';
 import type { GraphRepository } from '../graph/graph.repository';
+import { requireJsonObject } from '../middleware/validate-json';
+import { validateId } from '../middleware/validate-id';
 
 export function createGraphRouter(graph: GraphRepository): Router {
   const router = Router();
 
-  router.post('/intersections', (req, res) => {
+  router.post('/intersections', requireJsonObject, (req, res) => {
     const intersection = graph.addIntersection(req.body);
     res.status(201).json({ data: intersection });
   });
@@ -13,7 +15,7 @@ export function createGraphRouter(graph: GraphRepository): Router {
     res.json({ data: graph.listIntersections() });
   });
 
-  router.get('/intersections/:id', (req, res) => {
+  router.get<{id: string}>('/intersections/:id', validateId, (req, res) => {
     const intersection = graph.getIntersection(req.params.id);
 
     if (!intersection) {
@@ -29,12 +31,12 @@ export function createGraphRouter(graph: GraphRepository): Router {
     res.json({ data: intersection });
   });
 
-  router.get('/intersections/:id/neighbors', (req, res) => {
+  router.get<{id: string}>('/intersections/:id/neighbors',validateId, (req, res) => {
     const neighbors = graph.getNeighbors(req.params.id);
     res.json({ data: neighbors });
   });
 
-  router.post('/roads', (req, res) => {
+  router.post('/roads', requireJsonObject, (req, res) => {
     const road = graph.addRoad(req.body);
     res.status(201).json({ data: road });
   });
@@ -43,7 +45,7 @@ export function createGraphRouter(graph: GraphRepository): Router {
     res.json({ data: graph.listRoads() });
   });
 
-  router.get('/roads/:id/status', (req, res) => {
+  router.get<{id: string}>('/roads/:id/status', validateId, (req, res) => {
     const road = graph.getRoad(req.params.id);
 
     if (!road) {
@@ -70,7 +72,7 @@ export function createGraphRouter(graph: GraphRepository): Router {
     });
   });
 
-  router.get('/roads/:id', (req, res) => {
+  router.get<{id: string}>('/roads/:id', validateId, (req, res) => {
     const road = graph.getRoad(req.params.id);
 
     if (!road) {
@@ -90,7 +92,7 @@ export function createGraphRouter(graph: GraphRepository): Router {
     res.json({ data: graph.getSnapshot() });
   });
 
-  router.patch('/roads/:id/traffic', (req, res) => {
+  router.patch<{id: string}>('/roads/:id/traffic', validateId, requireJsonObject, (req, res) => {
     const { multiplier } = req.body ?? {};
 
     const road = graph.updateTraffic(req.params.id, multiplier);
@@ -101,7 +103,7 @@ export function createGraphRouter(graph: GraphRepository): Router {
     });
   });
 
-  router.patch('/roads/:id/closure', (req, res) => {
+  router.patch<{id: string}>('/roads/:id/closure', validateId, requireJsonObject, (req, res) => {
     const { closed } = req.body ?? {};
 
     const road = graph.setRoadClosure(req.params.id, closed);
