@@ -3,8 +3,10 @@ import express from "express";
 
 import { GraphRepository } from "./graph/graph.repository";
 import { createSeededGraph } from "./data/seed";
+
 import { createGraphRouter } from "./routes/graph.routes";
 import { healthRouter } from "./routes/health.routes";
+import { createRouteRouter } from "./routes/route.routes";
 
 import {
   errorHandler,
@@ -21,6 +23,7 @@ export function createApp(
 
   app.use("/health", healthRouter);
   app.use("/api", createGraphRouter(graph));
+  app.use("/api/routes", createRouteRouter(graph));
 
   app.use(notFoundHandler);
   app.use(errorHandler);
